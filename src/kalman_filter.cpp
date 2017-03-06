@@ -35,10 +35,3 @@ void KalmanFilter::Update(const VectorXd &z) {
     MatrixXd I = MatrixXd::Identity(x_size, x_size);
     P_ = (I - K * H_) * P_;
 }
-
-void KalmanFilter::UpdateEKF(const VectorXd &z) {
-    /**
-    TODO:
-      * update the state by using Extended Kalman Filter equations
-    */
-}

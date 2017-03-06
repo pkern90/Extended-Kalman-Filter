@@ -19,6 +19,9 @@ FusionEKF::FusionEKF() {
     R_laser_ << 0.0225, 0,
             0, 0.0225;
     R_radar_ = MatrixXd(3, 3);
+    R_radar_ << 0.0225, 0, 0,
+            0, 0.0225, 0,
+            0, 0, 0.0225;
     H_laser_ = MatrixXd(2, 4);
     H_laser_ << 1, 0, 0, 0,
             0, 1, 0, 0;
@@ -43,6 +46,10 @@ FusionEKF::FusionEKF() {
     MatrixXd Q_ = MatrixXd(4, 4);
 
     ekf_.Init(x_, P_, F_, H_laser_, R_laser_, Q_);
+
+
+    process_noise_ax = 100;
+    process_noise_ay = 100;
 }
 
 /**
@@ -71,13 +78,15 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
             p_x = rho * cos(phi);
             p_y = rho * sin(phi);
-
-            cout << "x: " << p_x << " y: " << p_y << endl;
+            ekf_.R_ = R_radar_;
+            ekf_.H_ = Hj_;
 
         } else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
             cout << "Init Laser Raw" << measurement_pack.raw_measurements_ << endl;
             p_x = measurement_pack.raw_measurements_[0];
             p_y = measurement_pack.raw_measurements_[1];
+            ekf_.R_ = R_laser_;
+            ekf_.H_ = H_laser_;
         }
 
         ekf_.x_ << p_x, p_y, 0, 0;
@@ -95,19 +104,15 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     previous_timestamp_ = measurement_pack.timestamp_;
     cout << "Delta Time: " << dt << endl;
 
-    // TODO fix noise
-    float noise_ax = 5;
-    float noise_ay = 5;
-
     ekf_.F_ << 1, 0, dt, 0,
             0, 1, 0, dt,
             0, 0, 1, 0,
             0, 0, 0, 1;
 
-    ekf_.Q_ << pow(dt, 4) / 4 * noise_ax, 0, pow(dt, 3) / 2 * noise_ax, 0,
-            0, pow(dt, 4) / 4 * noise_ay, 0, pow(dt, 3) / 2 * noise_ay,
-            pow(dt, 3) / 2 * noise_ax, 0, pow(dt, 2) * noise_ax, 0,
-            0, pow(dt, 3) / 2 * noise_ay, 0, pow(dt, 2) * noise_ay;
+    ekf_.Q_ << pow(dt, 4) / 4 * process_noise_ax, 0, pow(dt, 3) / 2 * process_noise_ax, 0,
+            0, pow(dt, 4) / 4 * process_noise_ay, 0, pow(dt, 3) / 2 * process_noise_ay,
+            pow(dt, 3) / 2 * process_noise_ax, 0, pow(dt, 2) * process_noise_ax, 0,
+            0, pow(dt, 3) / 2 * process_noise_ay, 0, pow(dt, 2) * process_noise_ay;
 
     ekf_.Predict();
 
@@ -116,15 +121,18 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      ****************************************************************************/
 
 
-    // TODO radar update
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
         // Radar updates
+        ekf_.R_ = R_radar_;
+        ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
         cout << "Update Radar Raw" << measurement_pack.raw_measurements_ << endl;
     } else {
         // Laser updates
+        ekf_.R_ = R_laser_;
+        ekf_.H_ = H_laser_;
         cout << "Update Laser Raw" << measurement_pack.raw_measurements_ << endl;
-        ekf_.Update(measurement_pack.raw_measurements_);
     }
+    ekf_.Update(measurement_pack.raw_measurements_);
 
     // print the output
     cout << "x_ = " << ekf_.x_ << endl;

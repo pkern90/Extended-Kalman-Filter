@@ -43,6 +43,8 @@ private:
     MatrixXd R_radar_;
     MatrixXd H_laser_;
     MatrixXd Hj_;
+    double process_noise_ax;
+    double process_noise_ay;
 };
 
 #endif /* FusionEKF_H_ */
