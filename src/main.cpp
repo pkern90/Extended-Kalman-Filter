@@ -3,8 +3,8 @@
 #include <sstream>
 #include <vector>
 #include "Eigen/Dense"
-#include "FusionEKF.h"
-#include "ground_truth_package.h"
+#include "FusionEKF.hpp"
+#include "ground_truth_package.hpp"
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -173,8 +173,7 @@ int main(int argc, char *argv[]) {
     processData(out_file_, measurement_pack_list, gt_pack_list, estimations, ground_truth);
 
     // compute the accuracy (RMSE)
-    Tools tools;
-    cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
+    cout << "Accuracy - RMSE:" << endl << tools::CalculateRMSE(estimations, ground_truth) << endl;
 
     // close files
     if (out_file_.is_open()) {
