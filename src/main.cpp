@@ -47,25 +47,11 @@ void check_files(ifstream &in_file, string &in_name,
     }
 }
 
-int main(int argc, char *argv[]) {
-
-    check_arguments(argc, argv);
-
-    string in_file_name_ = argv[1];
-    ifstream in_file_(in_file_name_.c_str(), ifstream::in);
-
-    string out_file_name_ = argv[2];
-    ofstream out_file_(out_file_name_.c_str(), ofstream::out);
-
-    check_files(in_file_, in_file_name_, out_file_, out_file_name_);
-
-    vector<MeasurementPackage> measurement_pack_list;
-    vector<GroundTruthPackage> gt_pack_list;
-
+void readData(ifstream &in_file_, vector<MeasurementPackage> &measurement_pack_list,
+              vector<GroundTruthPackage> &gt_pack_list) {
     string line;
 
-    // prep the measurement packages (each line represents a measurement at a
-    // timestamp)
+    // prep the measurement packages (each line represents a measurement at a timestamp)
     while (getline(in_file_, line)) {
 
         string sensor_type;
@@ -121,19 +107,18 @@ int main(int argc, char *argv[]) {
         gt_package.gt_values_ << x_gt, y_gt, vx_gt, vy_gt;
         gt_pack_list.push_back(gt_package);
     }
+}
 
-    // Create a Fusion EKF instance
+void processData(ofstream &out_file_, const vector<MeasurementPackage> &measurement_pack_list,
+                 const vector<GroundTruthPackage> &gt_pack_list, vector<VectorXd> &estimations,
+                 vector<VectorXd> &ground_truth) {
+
     FusionEKF fusionEKF;
-
-    // used to compute the RMSE later
-    vector<VectorXd> estimations;
-    vector<VectorXd> ground_truth;
 
     //Call the EKF-based fusion
     size_t N = measurement_pack_list.size();
     for (size_t k = 0; k < N; ++k) {
-        // start filtering from the second frame (the speed is unknown in the first
-        // frame)
+        // start filtering from the second frame (the speed is unknown in the first frame)
         fusionEKF.ProcessMeasurement(measurement_pack_list[k]);
 
         // output the estimation
@@ -164,6 +149,28 @@ int main(int argc, char *argv[]) {
         estimations.push_back(fusionEKF.ekf_.x_);
         ground_truth.push_back(gt_pack_list[k].gt_values_);
     }
+}
+
+int main(int argc, char *argv[]) {
+
+    check_arguments(argc, argv);
+
+    string in_file_name_ = argv[1];
+    ifstream in_file_(in_file_name_.c_str(), ifstream::in);
+
+    string out_file_name_ = argv[2];
+    ofstream out_file_(out_file_name_.c_str(), ofstream::out);
+
+    check_files(in_file_, in_file_name_, out_file_, out_file_name_);
+
+    vector<MeasurementPackage> measurement_pack_list;
+    vector<GroundTruthPackage> gt_pack_list;
+    readData(in_file_, measurement_pack_list, gt_pack_list);
+
+    // used to compute the RMSE later
+    vector<VectorXd> estimations;
+    vector<VectorXd> ground_truth;
+    processData(out_file_, measurement_pack_list, gt_pack_list, estimations, ground_truth);
 
     // compute the accuracy (RMSE)
     Tools tools;
