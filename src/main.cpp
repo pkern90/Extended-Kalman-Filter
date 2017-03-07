@@ -2,34 +2,61 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "Eigen/Dense"
+#include "lib/Eigen/Dense"
 #include "FusionEKF.hpp"
 #include "ground_truth_package.hpp"
+#include "lib/cxxopts.hpp"
 
 using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using std::vector;
 
-void check_arguments(int argc, char *argv[]) {
-    string usage_instructions = "Usage instructions: ";
-    usage_instructions += argv[0];
-    usage_instructions += " path/to/input.txt output.txt";
+bool verbose = false;
+bool useRadar = false;
+bool useLidar = false;
+string in_file_name_ = "";
+string out_file_name_ = "";
 
-    bool has_valid_args = false;
+void parseOptions(int argc, char *argv[]){
+    try {
+        cxxopts::Options options(argv[0], " - Implementation of an extended Kalman filter to"
+                " fuse lidar and radar sensor data.\n"
+                "Input and Output files are required");
 
-    // make sure the user has provided input and output files
-    if (argc == 1) {
-        cerr << usage_instructions << endl;
-    } else if (argc == 2) {
-        cerr << "Please include an output file.\n" << usage_instructions << endl;
-    } else if (argc == 3) {
-        has_valid_args = true;
-    } else if (argc > 3) {
-        cerr << "Too many arguments.\n" << usage_instructions << endl;
-    }
+        options.add_options()
+                ("h,help", "Print help")
+                ("i,input", "Input File", cxxopts::value<std::string>())
+                ("o,output", "Output file", cxxopts::value<std::string>())
+                ("v,verbose", "verbose flag", cxxopts::value<bool>(verbose))
+                ("r,radar", "use only radar data", cxxopts::value<bool>(useRadar))
+                ("l,lidar", "use only lidar data", cxxopts::value<bool>(useLidar));
 
-    if (!has_valid_args) {
+        vector<string> optionals = {"input", "output"};
+        options.parse_positional(optionals);
+
+        options.parse(argc, argv);
+
+        if (options.count("help")) {
+            cout << options.help({"", "Group"}) << endl;
+            exit(EXIT_SUCCESS);
+        }
+
+        if (options.count("input") == 0) {
+            cout << "Please include an input file.\nUse -h to get more information" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        if (options.count("output") == 0) {
+            cout << "Please include an output file.\nUse -h to get more information" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        in_file_name_ = options["input"].as<string>();
+        out_file_name_ = options["output"].as<string>();
+
+    } catch (const cxxopts::OptionException &e) {
+        std::cout << "error parsing options: " << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -64,6 +91,9 @@ void readData(ifstream &in_file_, vector<MeasurementPackage> &measurement_pack_l
         iss >> sensor_type;
         if (sensor_type.compare("L") == 0) {
             // LASER MEASUREMENT
+            if(useRadar){
+                continue;
+            }
 
             // read measurements at this timestamp
             meas_package.sensor_type_ = MeasurementPackage::LASER;
@@ -78,6 +108,9 @@ void readData(ifstream &in_file_, vector<MeasurementPackage> &measurement_pack_l
             measurement_pack_list.push_back(meas_package);
         } else if (sensor_type.compare("R") == 0) {
             // RADAR MEASUREMENT
+            if(useLidar){
+                continue;
+            }
 
             // read measurements at this timestamp
             meas_package.sensor_type_ = MeasurementPackage::RADAR;
@@ -148,17 +181,19 @@ void processData(ofstream &out_file_, const vector<MeasurementPackage> &measurem
 
         estimations.push_back(fusionEKF.ekf_.x_);
         ground_truth.push_back(gt_pack_list[k].gt_values_);
+
+        if(verbose){
+            cout << "***** Entry: " << (k + 1) << " *****\n" << endl;
+            cout << "x_ = " << fusionEKF.ekf_.x_ << "\n" << endl;
+            cout << "P_ = " << fusionEKF.ekf_.P_ << "\n" << endl;
+        }
     }
 }
 
 int main(int argc, char *argv[]) {
+    parseOptions(argc, argv);
 
-    check_arguments(argc, argv);
-
-    string in_file_name_ = argv[1];
     ifstream in_file_(in_file_name_.c_str(), ifstream::in);
-
-    string out_file_name_ = argv[2];
     ofstream out_file_(out_file_name_.c_str(), ofstream::out);
 
     check_files(in_file_, in_file_name_, out_file_, out_file_name_);
@@ -184,5 +219,5 @@ int main(int argc, char *argv[]) {
         in_file_.close();
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

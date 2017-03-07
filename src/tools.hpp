@@ -1,8 +1,8 @@
-#ifndef TOOLS_H_
-#define TOOLS_H_
+#ifndef TOOLS_HPP
+#define TOOLS_HPP
 
 #include <vector>
-#include "Eigen/Dense"
+#include "lib/Eigen/Dense"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -22,4 +22,4 @@ namespace tools {
 
 };
 
-#endif /* TOOLS_H_ */
+#endif /* TOOLS_HPP */

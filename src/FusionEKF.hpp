@@ -1,5 +1,5 @@
-#ifndef FusionEKF_H_
-#define FusionEKF_H_
+#ifndef FusionEKF_HPP
+#define FusionEKF_HPP
 
 #include "measurement_package.hpp"
 #include <vector>
@@ -45,4 +45,4 @@ private:
     double process_noise_ay;
 };
 
-#endif /* FusionEKF_H_ */
+#endif /* FusionEKF_HPP */

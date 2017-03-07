@@ -1,7 +1,7 @@
-#ifndef GROUND_TRUTH_PACKAGE_H_
-#define GROUND_TRUTH_PACKAGE_H_
+#ifndef GROUND_TRUTH_PACKAGE_HPP
+#define GROUND_TRUTH_PACKAGE_HPP
 
-#include "Eigen/Dense"
+#include "lib/Eigen/Dense"
 
 class GroundTruthPackage {
 public:
@@ -16,4 +16,4 @@ public:
 
 };
 
-#endif /* MEASUREMENT_PACKAGE_H_ */
+#endif /* MEASUREMENT_PACKAGE_HPP */

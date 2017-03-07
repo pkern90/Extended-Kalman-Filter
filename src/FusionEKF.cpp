@@ -43,8 +43,8 @@ FusionEKF::FusionEKF() {
 
     ekf_.Init(x_, P_, F_, H_laser_, R_laser_, Q_);
 
-    process_noise_ax = 100;
-    process_noise_ay = 100;
+    process_noise_ax = 5;
+    process_noise_ay = 5;
 }
 
 /**
@@ -64,7 +64,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         double p_y = 0;
 
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-            cout << "Init Radar Raw" << measurement_pack.raw_measurements_ << endl;
             double rho = measurement_pack.raw_measurements_[0];
             double phi = measurement_pack.raw_measurements_[1];
             double rho_dot = measurement_pack.raw_measurements_[2];
@@ -73,7 +72,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             p_y = rho * sin(phi);
 
         } else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-            cout << "Init Laser Raw" << measurement_pack.raw_measurements_ << endl;
             p_x = measurement_pack.raw_measurements_[0];
             p_y = measurement_pack.raw_measurements_[1];
         }
@@ -119,8 +117,4 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         ekf_.H_ = H_laser_;
     }
     ekf_.Update(measurement_pack.raw_measurements_);
-
-    // print the output
-    cout << "x_ = " << ekf_.x_ << endl;
-    cout << "P_ = " << ekf_.P_ << endl;
 }

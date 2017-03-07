@@ -1,7 +1,7 @@
-#ifndef KALMAN_FILTER_H_
-#define KALMAN_FILTER_H_
+#ifndef KALMAN_FILTER_HPP
+#define KALMAN_FILTER_HPP
 
-#include "Eigen/Dense"
+#include "lib/Eigen/Dense"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -64,4 +64,4 @@ public:
 
 };
 
-#endif /* KALMAN_FILTER_H_ */
+#endif /* KALMAN_FILTER_HPP */

@@ -1,7 +1,7 @@
-#ifndef MEASUREMENT_PACKAGE_H_
-#define MEASUREMENT_PACKAGE_H_
+#ifndef MEASUREMENT_PACKAGE_HPP
+#define MEASUREMENT_PACKAGE_HPP
 
-#include "Eigen/Dense"
+#include "lib/Eigen/Dense"
 
 class MeasurementPackage {
 public:
@@ -15,4 +15,4 @@ public:
     Eigen::VectorXd raw_measurements_;
 };
 
-#endif /* MEASUREMENT_PACKAGE_H_ */
+#endif /* MEASUREMENT_PACKAGE_HPP */

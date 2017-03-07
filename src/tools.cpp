@@ -8,7 +8,7 @@ namespace tools{
         rmse << 0, 0, 0, 0;
 
         if (estimations.size() == 0 || estimations.size() != ground_truth.size()) {
-            cout << "Error: invalid input values." << endl;
+            cout << "CalculateRMSE () - Error: Invalid input values." << endl;
             return rmse;
         }
 
@@ -37,7 +37,7 @@ namespace tools{
         float p_sq_3_2 = pow(p_sq_sum, 3 / 2);
 
         if (fabs(p_sq_sum) < 0.0001) {
-            cout << "CalculateJacobian () - Error - Division by Zero" << endl;
+            cout << "CalculateJacobian () - Error: Division by Zero" << endl;
             return Hj;
         }
 
