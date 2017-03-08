@@ -162,15 +162,15 @@ void processData(ofstream &out_file_, const vector<MeasurementPackage> &measurem
 
         // output the measurements
         if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::LASER) {
-            // output the estimation
+            // output the measurements
             out_file_ << measurement_pack_list[k].raw_measurements_(0) << "\t";
             out_file_ << measurement_pack_list[k].raw_measurements_(1) << "\t";
         } else if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::RADAR) {
-            // output the estimation in the cartesian coordinates
-            double ro = measurement_pack_list[k].raw_measurements_(0);
+            // output the measurements in the cartesian coordinates
+            double rho = measurement_pack_list[k].raw_measurements_(0);
             double phi = measurement_pack_list[k].raw_measurements_(1);
-            out_file_ << ro * cos(phi) << "\t"; // p1_meas
-            out_file_ << ro * sin(phi) << "\t"; // ps_meas
+            out_file_ << rho * cos(phi) << "\t";
+            out_file_ << rho * sin(phi) << "\t";
         }
 
         // output the ground truth packages

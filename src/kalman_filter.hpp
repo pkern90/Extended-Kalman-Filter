@@ -62,6 +62,11 @@ public:
      */
     void Update(const VectorXd &z);
 
+    /**
+    * Updates the state by using standard Kalman Filter equations
+    * @param z The measurement at k+1
+    */
+    void UpdateEKF(const VectorXd &z);
 };
 
 #endif /* KALMAN_FILTER_HPP */
