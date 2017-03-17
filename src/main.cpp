@@ -13,8 +13,8 @@ using Eigen::VectorXd;
 using std::vector;
 
 bool verbose = false;
-bool useRadar = false;
-bool useLidar = false;
+bool useOnlyRadar = false;
+bool useOnlyLidar = false;
 string in_file_name_ = "";
 string out_file_name_ = "";
 
@@ -29,8 +29,8 @@ void parseOptions(int argc, char *argv[]){
                 ("i,input", "Input File", cxxopts::value<std::string>())
                 ("o,output", "Output file", cxxopts::value<std::string>())
                 ("v,verbose", "verbose flag", cxxopts::value<bool>(verbose))
-                ("r,radar", "use only radar data", cxxopts::value<bool>(useRadar))
-                ("l,lidar", "use only lidar data", cxxopts::value<bool>(useLidar));
+                ("r,radar", "use only radar data", cxxopts::value<bool>(useOnlyRadar))
+                ("l,lidar", "use only lidar data", cxxopts::value<bool>(useOnlyLidar));
 
         vector<string> optionals = {"input", "output"};
         options.parse_positional(optionals);
@@ -81,17 +81,17 @@ void readData(ifstream &in_file_, vector<MeasurementPackage> &measurement_pack_l
     // prep the measurement packages (each line represents a measurement at a timestamp)
     while (getline(in_file_, line)) {
 
+        istringstream iss(line);
         string sensor_type;
         MeasurementPackage meas_package;
         GroundTruthPackage gt_package;
-        istringstream iss(line);
         long timestamp;
 
         // reads first element from the current line
         iss >> sensor_type;
         if (sensor_type.compare("L") == 0) {
             // LASER MEASUREMENT
-            if(useRadar){
+            if(useOnlyRadar){
                 continue;
             }
 
@@ -108,7 +108,7 @@ void readData(ifstream &in_file_, vector<MeasurementPackage> &measurement_pack_l
             measurement_pack_list.push_back(meas_package);
         } else if (sensor_type.compare("R") == 0) {
             // RADAR MEASUREMENT
-            if(useLidar){
+            if(useOnlyLidar){
                 continue;
             }
 

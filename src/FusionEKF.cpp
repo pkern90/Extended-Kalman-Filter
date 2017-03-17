@@ -20,9 +20,9 @@ FusionEKF::FusionEKF() {
             0, 0.0225;
 
     R_radar_ = MatrixXd(3, 3);
-    R_radar_ << 0.0225, 0, 0,
-            0, 0.0225, 0,
-            0, 0, 0.0225;
+    R_radar_ << 0.09, 0, 0,
+            0, 0.0009, 0,
+            0, 0, 0.09;
 
     H_laser_ = MatrixXd(2, 4);
     H_laser_ << 1, 0, 0, 0,
@@ -43,8 +43,8 @@ FusionEKF::FusionEKF() {
 
     ekf_.Init(x_, P_, F_, H_laser_, R_laser_, Q_);
 
-    process_noise_ax = 5;
-    process_noise_ay = 5;
+    process_noise_ax = 9;
+    process_noise_ay = 9;
 }
 
 /**

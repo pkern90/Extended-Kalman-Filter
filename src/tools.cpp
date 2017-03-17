@@ -37,13 +37,13 @@ namespace tools {
         double vy = x_state(3);
 
         double p_sq_sum = px * px + py * py;
+        if (fabs(p_sq_sum) < 0.0001) {
+            cout << "CalculateJacobian () - Error: Division by Zero. Replacing with 0.0001" << endl;
+            p_sq_sum = 0.0001;
+        }
+
         double p_dist = sqrt(p_sq_sum);
         double p_sq_3_2 = p_sq_sum * p_dist;
-
-        if (fabs(p_sq_sum) < 0.0001) {
-            cout << "CalculateJacobian () - Error: Division by Zero" << endl;
-            return Hj;
-        }
 
 
         Hj << (px / p_dist), (py / p_dist), 0, 0,
