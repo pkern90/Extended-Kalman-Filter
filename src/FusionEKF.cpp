@@ -60,22 +60,34 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         // first measurement
         cout << "EKF: " << endl;
 
-        double p_x = 0;
-        double p_y = 0;
+        double px = 0;
+        double py = 0;
 
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
             double rho = measurement_pack.raw_measurements_[0];
             double phi = measurement_pack.raw_measurements_[1];
 
-            p_x = rho * cos(phi);
-            p_y = rho * sin(phi);
+            px = rho * cos(phi);
+            py = rho * sin(phi);
+
+            // If initial values are zero they will set to an initial guess
+            // and the uncertainty will be increased.
+            // Initial zeros would cause the algorithm to fail when using only Radar data.
+            if(fabs(px) < 0.0001){
+                px = 1;
+                ekf_.P_(0,0) = 1000;
+            }
+            if(fabs(py) < 0.0001){
+                py = 1;
+                ekf_.P_(1,1) = 1000;
+            }
 
         } else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-            p_x = measurement_pack.raw_measurements_[0];
-            p_y = measurement_pack.raw_measurements_[1];
+            px = measurement_pack.raw_measurements_[0];
+            py = measurement_pack.raw_measurements_[1];
         }
 
-        ekf_.x_ << p_x, p_y, 0, 0;
+        ekf_.x_ << px, py, 0, 0;
         previous_timestamp_ = measurement_pack.timestamp_;
 
         is_initialized_ = true;
