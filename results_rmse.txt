@@ -23,10 +23,10 @@ Accuracy - RMSE:
 ****** Text 2 ******
 Radar
 Accuracy - RMSE:
-	117.36
-	22.1198
-	2.13639
-	0.771121
+	0.186346
+	0.232926
+	0.131597
+	0.206269
 
 Lidar
 Accuracy - RMSE:
